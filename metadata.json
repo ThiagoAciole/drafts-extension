@@ -1,0 +1,7 @@
+{
+  "name": "Drafts",
+  "description": "A quick notepad in the top bar",
+  "uuid": "drafts@thiago.aciole",
+  "shell-version": [ "46" ],
+  "url": "https://github.com/thiagoaciole/drafts-extension"
+}

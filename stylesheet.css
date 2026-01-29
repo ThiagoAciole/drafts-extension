@@ -1,0 +1,49 @@
+.drafts-popup-content {
+  min-width: 400px;
+  padding: 12px;
+}
+
+.drafts-header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.drafts-title {
+  font-weight: 900;
+  font-size: 16px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.drafts-scrollview {
+  min-height: 300px; /* Mantém um tamanho mínimo bom */
+  max-height: 600px; /* Evita que estoure a tela em notebooks */
+  background-color: #252525;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.drafts-toolbar {
+  padding-top: 12px;
+  spacing: 12px;
+}
+
+.drafts-toolbar-btn {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* Adicionei :focus para facilitar se você usar Tab no teclado */
+.drafts-toolbar-btn:hover,
+.drafts-toolbar-btn:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.drafts-toolbar-btn:active {
+  background-color: #9b59b6;
+  color: white;
+}
