@@ -70,7 +70,6 @@ const DraftsButton = GObject.registerClass(
         return Clutter.EVENT_STOP;
       });
 
-      // --- CORREÇÃO AQUI: Removida a propriedade style_class ---
       this.entry = new Clutter.Text({
         line_alignment: Pango.Alignment.LEFT,
         margin_left: 5,
@@ -82,29 +81,37 @@ const DraftsButton = GObject.registerClass(
         reactive: true,
         x_expand: true,
         y_expand: true,
-        // style_class: 'drafts-text-entry' <--- REMOVIDO PARA EVITAR O ERRO
       });
 
       this._updateFont();
 
-      // --- Cores Restauradas via JS ---
-      let white = new Clutter.Color({
-        red: 255,
-        green: 255,
-        blue: 255,
-        alpha: 255,
-      });
-      let purple = new Clutter.Color({
-        red: 155,
-        green: 89,
-        blue: 182,
-        alpha: 255,
-      });
+      // --- CORREÇÃO APLICADA AQUI ---
+      // Usando get_color() para obter uma struct válida e reciclá-la
+      // Isso contorna a falta de Clutter.Color no ambiente.
+      try {
+        let colorStruct = this.entry.get_color(); 
 
-      this.entry.set_color(white);
-      this.entry.set_cursor_color(white);
-      this.entry.set_selection_color(purple);
-      this.entry.set_selected_text_color(white);
+        // BRANCO
+        colorStruct.red = 255;
+        colorStruct.green = 255;
+        colorStruct.blue = 255;
+        colorStruct.alpha = 255;
+
+        this.entry.set_color(colorStruct);
+        this.entry.set_cursor_color(colorStruct);
+        this.entry.set_selected_text_color(colorStruct);
+
+        // ROXO (Reutilizando a struct)
+        colorStruct.red = 155;
+        colorStruct.green = 89;
+        colorStruct.blue = 182;
+        colorStruct.alpha = 255;
+
+        this.entry.set_selection_color(colorStruct);
+      } catch (e) {
+        console.error("Drafts: Erro ao definir cores via struct", e);
+      }
+      // ------------------------------
 
       this.entry.set_line_wrap(true);
       this.entry.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
