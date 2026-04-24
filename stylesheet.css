@@ -1,49 +1,150 @@
 .drafts-popup-content {
-  min-width: 400px;
+  width: 400px;
+  max-height: 650px;
   padding: 12px;
+  spacing: 12px;
+  background: #2d2d2d;
+  border-radius: 8px;
 }
 
 .drafts-header {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  spacing: 8px;
+  padding: 4px 2px 2px;
 }
 
 .drafts-title {
-  font-weight: 900;
   font-size: 16px;
+  font-weight: 700;
   color: #ffffff;
-  text-align: center;
 }
 
-.drafts-scrollview {
-  min-height: 300px; /* Mantém um tamanho mínimo bom */
-  max-height: 600px; /* Evita que estoure a tela em notebooks */
-  background-color: #252525;
-  border-radius: 8px;
-  padding: 10px;
+.drafts-editor-view,
+.drafts-history-view,
+.drafts-scrollview,
+.drafts-history-scrollview {
+  width: 380px;
+  height: 548px;
 }
 
 .drafts-toolbar {
-  padding-top: 12px;
-  spacing: 12px;
+  spacing: 10px;
+  padding: 2px 0 0;
+}
+
+.drafts-toolbar-btn,
+.drafts-secondary-btn,
+.drafts-danger-btn,
+.drafts-history-item,
+.drafts-header-icon-btn {
+  min-height: 36px;
+  color: #ffffff;
+  border-radius: 6px;
+}
+
+.drafts-history-list {
+  spacing: 8px;
+}
+
+.drafts-scrollview{
+  background: #3a3a3a;
+  border-radius: 6px;
+}
+
+.drafts-text-container {
+  padding: 0;
 }
 
 .drafts-toolbar-btn {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-weight: bold;
+  padding: 0 10px;
+  background: #4a4a4a;
+}
+
+.drafts-danger-btn {
+  padding: 0 12px;
+  background: #4a4a4a;
+}
+
+.drafts-secondary-btn {
+  padding: 0 12px;
+  background: #4a4a4a;
+}
+
+.drafts-header-icon-btn {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0;
+  background: #4a4a4a;
+}
+
+.drafts-toolbar-btn:hover,
+.drafts-secondary-btn:hover,
+.drafts-danger-btn:hover,
+.drafts-history-item:hover,
+.drafts-header-icon-btn:hover,
+.drafts-toolbar-btn:focus,
+.drafts-secondary-btn:focus,
+.drafts-danger-btn:focus,
+.drafts-history-item:focus,
+.drafts-header-icon-btn:focus {
+  background: #5a5a5a;
+}
+
+.drafts-history-title,
+.drafts-history-item-title,
+.drafts-history-item-date,
+.drafts-empty-state,
+.drafts-confirm-label {
   color: #ffffff;
 }
 
-/* Adicionei :focus para facilitar se você usar Tab no teclado */
-.drafts-toolbar-btn:hover,
-.drafts-toolbar-btn:focus {
-  background-color: rgba(255, 255, 255, 0.2);
+.drafts-search-entry {
+  min-height: 40px;
+  padding: 0 12px;
+  background: #3a3a3a;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  color: #ffffff;
 }
 
-.drafts-toolbar-btn:active {
-  background-color: #9b59b6;
-  color: white;
+.drafts-history-list {
+  padding: 10px 0 0;
+  spacing: 12px;
+}
+
+.drafts-history-item {
+  padding: 14px 12px;
+  background: #3f3f3f;
+  border-radius: 6px;
+}
+
+.drafts-history-item-date {
+  color: #bdbdbd;
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.drafts-empty-state {
+  padding: 18px 14px;
+  color: #bdbdbd;
+}
+
+.drafts-confirm-bar {
+  spacing: 8px;
+  padding: 8px 10px;
+  background: #3a3a3a;
+  border-radius: 6px;
+}
+
+.drafts-snackbar {
+  padding: 6px 12px;
+  background: rgba(20, 20, 20, 0.92);
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.drafts-snackbar-slot {
+  min-width: 120px;
+  min-height: 36px;
+  padding: 0 4px;
 }

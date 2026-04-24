@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.drafts" path="/org/gnome/shell/extensions/drafts/">
+    <key name="font-size" type="i">
+      <default>12</default>
+      <summary>Tamanho da fonte do editor</summary>
+      <description>O tamanho da fonte aplicado na area de texto do editor de rascunhos.</description>
+    </key>
+    <key name="confirm-clear" type="b">
+      <default>true</default>
+      <summary>Confirmar antes de limpar o rascunho</summary>
+      <description>Exibe uma confirmacao antes de limpar o rascunho atual.</description>
+    </key>
+    <key name="max-history" type="i">
+      <default>25</default>
+      <summary>Quantidade maxima de anotacoes salvas no historico</summary>
+      <description>O numero maximo de anotacoes salvas manualmente e mantidas na lista de historico.</description>
+    </key>
+  </schema>
+</schemalist>
