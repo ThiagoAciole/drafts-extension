@@ -88,7 +88,7 @@ The preferences window currently supports:
 
 ## Supported Version
 
-- GNOME Shell 46
+- GNOME Shell 46 to 50
 
 ## Screenshots
 

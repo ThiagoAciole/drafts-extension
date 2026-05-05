@@ -1,4 +1,5 @@
 import Clutter from "gi://Clutter";
+import Cogl from "gi://Cogl";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
@@ -11,6 +12,15 @@ import { DraftsStorage } from "../services/storage.js";
 import { DraftsHistoryView } from "./history.js";
 
 const AUTOSAVE_DELAY_MS = 800;
+
+function createColor(red, green, blue, alpha = 255) {
+  const color = new Cogl.Color();
+  color.red = red;
+  color.green = green;
+  color.blue = blue;
+  color.alpha = alpha;
+  return color;
+}
 
 export const DraftsIndicator = GObject.registerClass(
   class DraftsIndicator extends PanelMenu.Button {
@@ -134,36 +144,16 @@ export const DraftsIndicator = GObject.registerClass(
       this.entry.set_line_wrap(true);
       this.entry.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
       this.entry.set_color(
-        new Clutter.Color({
-          red: 241,
-          green: 245,
-          blue: 249,
-          alpha: 255,
-        })
+        createColor(241, 245, 249)
       );
       this.entry.set_cursor_color(
-        new Clutter.Color({
-          red: 241,
-          green: 245,
-          blue: 249,
-          alpha: 255,
-        })
+        createColor(241, 245, 249)
       );
       this.entry.set_selection_color(
-        new Clutter.Color({
-          red: 59,
-          green: 130,
-          blue: 246,
-          alpha: 255,
-        })
+        createColor(59, 130, 246)
       );
       this.entry.set_selected_text_color(
-        new Clutter.Color({
-          red: 255,
-          green: 255,
-          blue: 255,
-          alpha: 255,
-        })
+        createColor(255, 255, 255)
       );
 
       this.textContainer.add_child(this.entry);
