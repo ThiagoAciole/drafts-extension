@@ -37,13 +37,17 @@ export const DraftsIndicator = GObject.registerClass(
       this._historyDirty = true;
       this._signals = [];
 
-      this._state = this._storage.loadState();
+      this._state = {
+        draft: "",
+        notes: [],
+      };
 
       this._buildLayout();
       this._wireSignals();
       this._applyDraft(this._state.draft);
       this._applyFontSize(this._settings.fontSize);
       this._hideConfirmBar();
+      this._loadState();
     }
 
     _buildLayout() {
@@ -88,12 +92,12 @@ export const DraftsIndicator = GObject.registerClass(
       this.headerModeButton = this._createHeaderIconButton(
         "view-list-symbolic",
         "Open history",
-        () => this._onHeaderModeAction()
+        () => this._onHeaderModeAction(),
       );
       this.headerSaveButton = this._createHeaderIconButton(
         "document-edit-symbolic",
         "Save note and clear",
-        () => this._saveAndResetEditor()
+        () => this._saveAndResetEditor(),
       );
 
       this.header.add_child(this.headerTitle);
@@ -143,18 +147,10 @@ export const DraftsIndicator = GObject.registerClass(
       });
       this.entry.set_line_wrap(true);
       this.entry.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-      this.entry.set_color(
-        createColor(241, 245, 249)
-      );
-      this.entry.set_cursor_color(
-        createColor(241, 245, 249)
-      );
-      this.entry.set_selection_color(
-        createColor(59, 130, 246)
-      );
-      this.entry.set_selected_text_color(
-        createColor(255, 255, 255)
-      );
+      this.entry.set_color(createColor(241, 245, 249));
+      this.entry.set_cursor_color(createColor(241, 245, 249));
+      this.entry.set_selection_color(createColor(59, 130, 246));
+      this.entry.set_selected_text_color(createColor(255, 255, 255));
 
       this.textContainer.add_child(this.entry);
       this.scrollView.set_child(this.textContainer);
@@ -176,7 +172,7 @@ export const DraftsIndicator = GObject.registerClass(
           style_class: "drafts-confirm-label",
           x_expand: true,
           y_align: Clutter.ActorAlign.CENTER,
-        })
+        }),
       );
 
       const cancelButton = new St.Button({
@@ -205,28 +201,43 @@ export const DraftsIndicator = GObject.registerClass(
       });
 
       this.toolbar.add_child(
-        this._createIconButton("list-remove-symbolic", "Decrease font size", () => {
-          this._settings.fontSize = this._settings.fontSize - 1;
-        })
+        this._createIconButton(
+          "list-remove-symbolic",
+          "Decrease font size",
+          () => {
+            this._settings.fontSize = this._settings.fontSize - 1;
+          },
+        ),
       );
       this.toolbar.add_child(
-        this._createIconButton("list-add-symbolic", "Increase font size", () => {
-          this._settings.fontSize = this._settings.fontSize + 1;
-        })
+        this._createIconButton(
+          "list-add-symbolic",
+          "Increase font size",
+          () => {
+            this._settings.fontSize = this._settings.fontSize + 1;
+          },
+        ),
       );
       this.toolbar.add_child(this._buildSnackbar());
-
       this.toolbar.add_child(
-        this._createIconButton("edit-copy-symbolic", "Copy text", () => this._copyText())
+        this._createIconButton("edit-copy-symbolic", "Copy text", () =>
+          this._copyText(),
+        ),
       );
       this.toolbar.add_child(
-        this._createIconButton("edit-paste-symbolic", "Paste text", () => this._pasteText())
+        this._createIconButton("edit-paste-symbolic", "Paste text", () =>
+          this._pasteText(),
+        ),
       );
       this.toolbar.add_child(
-        this._createIconButton("edit-cut-symbolic", "Cut text", () => this._cutText())
+        this._createIconButton("edit-cut-symbolic", "Cut text", () =>
+          this._cutText(),
+        ),
       );
       this.toolbar.add_child(
-        this._createIconButton("user-trash-symbolic", "Clear draft", () => this._requestClear())
+        this._createIconButton("user-trash-symbolic", "Clear draft", () =>
+          this._requestClear(),
+        ),
       );
 
       return this.toolbar;
@@ -252,7 +263,9 @@ export const DraftsIndicator = GObject.registerClass(
 
     _wireSignals() {
       this.entry.connect("text-changed", () => this._scheduleAutosave());
-      this.entry.connect("key-press-event", (_actor, event) => this._onKeyPress(event));
+      this.entry.connect("key-press-event", (_actor, event) =>
+        this._onKeyPress(event),
+      );
 
       this.menu.connect("open-state-changed", (_menu, open) => {
         if (open) {
@@ -268,17 +281,21 @@ export const DraftsIndicator = GObject.registerClass(
       });
 
       this._signals.push(
-        this._settings.connectFontSizeChanged((size) => this._applyFontSize(size))
+        this._settings.connectFontSizeChanged((size) =>
+          this._applyFontSize(size),
+        ),
       );
       this._signals.push(
-        this._settings.connectMaxHistoryChanged((maxHistory) => this._trimHistory(maxHistory))
+        this._settings.connectMaxHistoryChanged((maxHistory) =>
+          this._trimHistory(maxHistory),
+        ),
       );
       this._signals.push(
         this._settings.connectConfirmClearChanged((enabled) => {
           if (!enabled) {
             this._hideConfirmBar();
           }
-        })
+        }),
       );
     }
 
@@ -304,11 +321,6 @@ export const DraftsIndicator = GObject.registerClass(
         return Clutter.EVENT_STOP;
       }
 
-      if (symbol === Clutter.KEY_x || symbol === Clutter.KEY_X) {
-        this._cutText();
-        return Clutter.EVENT_STOP;
-      }
-
       if (symbol === Clutter.KEY_s || symbol === Clutter.KEY_S) {
         this._saveAndResetEditor();
         return Clutter.EVENT_STOP;
@@ -324,12 +336,26 @@ export const DraftsIndicator = GObject.registerClass(
         return Clutter.EVENT_STOP;
       }
 
+      if (symbol === Clutter.KEY_x || symbol === Clutter.KEY_X) {
+        this._cutText();
+        return Clutter.EVENT_STOP;
+      }
+
       if (symbol === Clutter.KEY_v || symbol === Clutter.KEY_V) {
         this._pasteText();
         return Clutter.EVENT_STOP;
       }
 
       return Clutter.EVENT_PROPAGATE;
+    }
+
+    _requestClear() {
+      if (!this._settings.confirmClear) {
+        this._clearDraft();
+        return;
+      }
+
+      this.confirmBar.visible = true;
     }
 
     _copyText() {
@@ -342,57 +368,67 @@ export const DraftsIndicator = GObject.registerClass(
         return;
       }
 
-      St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, textToCopy);
+      St.Clipboard.get_default().set_text(
+        St.ClipboardType.CLIPBOARD,
+        textToCopy,
+      );
       this._showSnackbar("Texto Copiado");
     }
 
     _cutText() {
       let textToCut = this.entry.get_selection();
-      if (textToCut) {
-        St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, textToCut);
-        this.entry.delete_selection();
-        this._scheduleAutosave();
-        this._queueFocus();
-        this._showSnackbar("Texto Recortado");
-        return;
-      }
-
-      textToCut = this.entry.text;
       if (!textToCut) {
-        this._queueFocus();
+        textToCut = this.entry.text;
+      }
+
+      if (!textToCut) {
         return;
       }
 
-      St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, textToCut);
-      this._clearDraft();
+      St.Clipboard.get_default().set_text(
+        St.ClipboardType.CLIPBOARD,
+        textToCut,
+      );
+
+      if (this.entry.get_selection()) {
+        this.entry.delete_selection();
+      } else {
+        this._clearDraft();
+      }
+
+      this._scheduleAutosave();
+      this._queueFocus();
       this._showSnackbar("Texto Recortado");
     }
 
     _pasteText() {
-      St.Clipboard.get_default().get_text(St.ClipboardType.CLIPBOARD, (_clip, text) => {
-        if (!text) {
-          return;
-        }
+      St.Clipboard.get_default().get_text(
+        St.ClipboardType.CLIPBOARD,
+        (_clip, text) => {
+          if (!text) {
+            return;
+          }
 
-        this.entry.delete_selection();
-        const cursorPosition = this.entry.get_cursor_position();
-        this.entry.insert_text(text, cursorPosition);
-        this._scheduleAutosave();
-        this._showSnackbar("Texto Colado");
-      });
-    }
-
-    _requestClear() {
-      if (!this._settings.confirmClear) {
-        this._clearDraft();
-        return;
-      }
-
-      this.confirmBar.visible = true;
+          this.entry.delete_selection();
+          const cursorPosition = this.entry.get_cursor_position();
+          this.entry.insert_text(text, cursorPosition);
+          this._scheduleAutosave();
+          this._showSnackbar("Texto Colado");
+        },
+      );
     }
 
     _hideConfirmBar() {
       this.confirmBar.visible = false;
+    }
+
+    async _loadState() {
+      try {
+        this._state = await this._storage.loadState();
+        this._applyDraft(this._state.draft);
+      } catch (error) {
+        global.logError(error, "Drafts: failed to load initial state");
+      }
     }
 
     _clearDraft() {
@@ -402,34 +438,42 @@ export const DraftsIndicator = GObject.registerClass(
       this._queueFocus();
     }
 
-    _archiveCurrentDraft({ clear = false } = {}) {
+    async _archiveCurrentDraft({ clear = false } = {}) {
       if (!this.entry.text.trim()) {
         return false;
       }
 
-      this._state = this._storage.loadState();
-      const latestNote = this._state.notes[0];
-      if (latestNote && latestNote.content === this.entry.text) {
-        if (clear) {
-          this._clearDraft();
+      try {
+        const state = await this._storage.loadState();
+        const latestNote = state.notes[0];
+        if (latestNote && latestNote.content === this.entry.text) {
+          if (clear) {
+            this._clearDraft();
+          }
+          return false;
         }
+
+        this._state = await this._storage.saveNote(
+          this.entry.text,
+          this._settings.maxHistory,
+        );
+        this._historyDirty = true;
+
+        if (clear) {
+          this.entry.text = "";
+          this._state = await this._storage.saveDraft("");
+          this._queueFocus();
+        }
+
+        if (this.historyView.container.visible) {
+          this._refreshHistory();
+        }
+
+        return true;
+      } catch (error) {
+        global.logError(error, "Drafts: failed to archive current draft");
         return false;
       }
-
-      this._state = this._storage.saveNote(this.entry.text, this._settings.maxHistory);
-      this._historyDirty = true;
-
-      if (clear) {
-        this.entry.text = "";
-        this._state = this._storage.saveDraft("");
-        this._queueFocus();
-      }
-
-      if (this.historyView.container.visible) {
-        this._refreshHistory();
-      }
-
-      return true;
     }
 
     _saveAndResetEditor() {
@@ -445,16 +489,20 @@ export const DraftsIndicator = GObject.registerClass(
       this._showHistory();
     }
 
-    _openNote(noteId) {
-      const result = this._storage.openNote(noteId);
-      if (!result) {
-        return;
-      }
+    async _openNote(noteId) {
+      try {
+        const result = await this._storage.openNote(noteId);
+        if (!result) {
+          return;
+        }
 
-      this._state = result.state;
-      this._applyDraft(result.note.content);
-      this._showEditor();
-      this._queueFocus();
+        this._state = result.state;
+        this._applyDraft(result.note.content);
+        this._showEditor();
+        this._queueFocus();
+      } catch (error) {
+        global.logError(error, "Drafts: failed to open note");
+      }
     }
 
     _toggleHistory() {
@@ -472,7 +520,7 @@ export const DraftsIndicator = GObject.registerClass(
         new St.Icon({
           icon_name: "view-list-symbolic",
           icon_size: 16,
-        })
+        }),
       );
       this.headerModeButton.accessible_name = "Open history";
       this.headerSaveButton.visible = true;
@@ -491,7 +539,7 @@ export const DraftsIndicator = GObject.registerClass(
         new St.Icon({
           icon_name: "go-previous-symbolic",
           icon_size: 16,
-        })
+        }),
       );
       this.headerModeButton.accessible_name = "Back to editor";
       this.headerSaveButton.visible = false;
@@ -508,9 +556,16 @@ export const DraftsIndicator = GObject.registerClass(
         return;
       }
 
-      this._state = this._storage.loadState();
-      this.historyView.render(this._state.notes);
-      this._historyDirty = false;
+      this._storage
+        .loadState()
+        .then((state) => {
+          this._state = state;
+          this.historyView.render(this._state.notes);
+          this._historyDirty = false;
+        })
+        .catch((error) => {
+          global.logError(error, "Drafts: failed to refresh history");
+        });
     }
 
     _trimHistory(maxHistory) {
@@ -518,11 +573,18 @@ export const DraftsIndicator = GObject.registerClass(
         return;
       }
 
-      this._state = this._storage.trimHistory(maxHistory);
-      this._historyDirty = true;
-      if (this.historyView.container.visible) {
-        this._refreshHistory();
-      }
+      this._storage
+        .trimHistory(maxHistory)
+        .then((state) => {
+          this._state = state;
+          this._historyDirty = true;
+          if (this.historyView.container.visible) {
+            this._refreshHistory();
+          }
+        })
+        .catch((error) => {
+          global.logError(error, "Drafts: failed to trim history");
+        });
     }
 
     _scheduleAutosave() {
@@ -535,9 +597,16 @@ export const DraftsIndicator = GObject.registerClass(
         AUTOSAVE_DELAY_MS,
         () => {
           this._autosaveTimeoutId = 0;
-          this._state = this._storage.saveDraft(this.entry.text);
+          this._storage
+            .saveDraft(this.entry.text)
+            .then((state) => {
+              this._state = state;
+            })
+            .catch((error) => {
+              global.logError(error, "Drafts: failed to autosave draft");
+            });
           return GLib.SOURCE_REMOVE;
-        }
+        },
       );
     }
 
@@ -567,12 +636,16 @@ export const DraftsIndicator = GObject.registerClass(
       this.snackbar.visible = true;
       this.snackbar.opacity = 255;
 
-      this._snackbarTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1200, () => {
-        this.snackbar.visible = false;
-        this.snackbar.opacity = 0;
-        this._snackbarTimeoutId = 0;
-        return GLib.SOURCE_REMOVE;
-      });
+      this._snackbarTimeoutId = GLib.timeout_add(
+        GLib.PRIORITY_DEFAULT,
+        1200,
+        () => {
+          this.snackbar.visible = false;
+          this.snackbar.opacity = 0;
+          this._snackbarTimeoutId = 0;
+          return GLib.SOURCE_REMOVE;
+        },
+      );
     }
 
     _createHeaderIconButton(iconName, accessibleName, callback) {
@@ -586,7 +659,7 @@ export const DraftsIndicator = GObject.registerClass(
         new St.Icon({
           icon_name: iconName,
           icon_size: 16,
-        })
+        }),
       );
       button.connect("clicked", callback);
       return button;
@@ -603,7 +676,7 @@ export const DraftsIndicator = GObject.registerClass(
         new St.Icon({
           icon_name: iconName,
           icon_size: 16,
-        })
+        }),
       );
       button.connect("clicked", callback);
       return button;
@@ -626,7 +699,9 @@ export const DraftsIndicator = GObject.registerClass(
       }
 
       this._archiveCurrentDraft();
-      this._state = this._storage.saveDraft(this.entry.text);
+      this._storage.saveDraft(this.entry.text).catch((error) => {
+        global.logError(error, "Drafts: failed to save draft on destroy");
+      });
 
       for (const signalId of this._signals) {
         this._settings.disconnect(signalId);
@@ -635,5 +710,5 @@ export const DraftsIndicator = GObject.registerClass(
 
       super.destroy();
     }
-  }
+  },
 );

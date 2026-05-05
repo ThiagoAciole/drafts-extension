@@ -2,6 +2,7 @@
   "name": "Drafts",
   "description": "A quick notepad in the top bar",
   "uuid": "drafts@thiago.aciole",
-  "shell-version": [ "46", "47", "48", "49", "50" ],
+  "version": 7,
+  "shell-version": ["46", "47", "48", "49", "50"],
   "url": "https://github.com/thiagoaciole/drafts-extension"
 }
