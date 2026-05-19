@@ -1,5 +1,4 @@
 import Clutter from "gi://Clutter";
-import Cogl from "gi://Cogl";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
@@ -13,13 +12,22 @@ import { DraftsHistoryView } from "./history.js";
 
 const AUTOSAVE_DELAY_MS = 800;
 
-function createColor(red, green, blue, alpha = 255) {
-  const color = new Cogl.Color();
-  color.red = red;
-  color.green = green;
-  color.blue = blue;
-  color.alpha = alpha;
-  return color;
+function applyEntryColors(entry) {
+  let colorStruct = entry.get_color();
+
+  colorStruct.red = 241;
+  colorStruct.green = 245;
+  colorStruct.blue = 249;
+  colorStruct.alpha = 255;
+  entry.set_color(colorStruct);
+  entry.set_cursor_color(colorStruct);
+  entry.set_selected_text_color(colorStruct);
+
+  colorStruct.red = 59;
+  colorStruct.green = 130;
+  colorStruct.blue = 246;
+  colorStruct.alpha = 255;
+  entry.set_selection_color(colorStruct);
 }
 
 export const DraftsIndicator = GObject.registerClass(
@@ -147,10 +155,7 @@ export const DraftsIndicator = GObject.registerClass(
       });
       this.entry.set_line_wrap(true);
       this.entry.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-      this.entry.set_color(createColor(241, 245, 249));
-      this.entry.set_cursor_color(createColor(241, 245, 249));
-      this.entry.set_selection_color(createColor(59, 130, 246));
-      this.entry.set_selected_text_color(createColor(255, 255, 255));
+      applyEntryColors(this.entry);
 
       this.textContainer.add_child(this.entry);
       this.scrollView.set_child(this.textContainer);
